@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tekber/app.dart';
 
+
 void main() {
   testWidgets('Application opens AI Chat', (WidgetTester tester) async {
     await tester.pumpWidget(const SiFinanceApp());

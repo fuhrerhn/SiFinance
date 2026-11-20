@@ -6,5 +6,5 @@ import 'app.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-  runApp(const SiFinanceApp());
+  runApp(const SiFinanceApp(startScreen: AppStartScreen.splash));
 }
