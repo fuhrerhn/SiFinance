@@ -54,6 +54,15 @@ flutter pub get
 flutter run --dart-define-from-file=config/supabase.json
 ```
 
+Untuk membuka aplikasi di browser melalui server pengembangan lokal, jalankan:
+
+```bash
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5173 --dart-define-from-file=config/supabase.json
+```
+
+Buka `http://127.0.0.1:5173/` langsung untuk masuk. Port `54321` digunakan aplikasi untuk mengakses API Supabase. Jika tab masih membuka URL konfirmasi lama dengan kode atau error autentikasi, buka kembali URL utama aplikasi.
+
+
 Masuk dengan `demo-a@example.com` atau `demo-b@example.com` dan kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan ini untuk kedua akun masing-masing Rp1.250.000 dan Rp875.000. Buat akun baru untuk melihat kondisi ketika belum ada transaksi. Filter mengubah total dan pembagian kategori. Grafik batang selalu memakai enam bulan kalender terakhir, termasuk bulan berjalan dan bulan dengan pengeluaran nol.
 
 Untuk Supabase hosted, terapkan kedua migrasi ke proyek tujuan dan pastikan Data API mengekspos skema `public`. Gunakan URL HTTPS dan publishable key proyek. Jika konfirmasi email aktif di Auth, pengguna perlu mengonfirmasi alamat sebelum masuk. Data kategori referensi berasal dari migrasi. Akun dan transaksi demo berasal dari seed lokal.
