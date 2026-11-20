@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../auth/presentation/sign_in_page.dart';
 import '../../chat/data/chat_service.dart';
-import '../../chat/presentation/chat_page.dart';
 
 class OnboardingItem {
   const OnboardingItem({
@@ -101,8 +101,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
-            builder: (_) => ChatPage(
-              service: widget.chatService ?? createChatService(),
+            builder: (_) => SignInPage(
+              chatService: widget.chatService,
             ),
           ),
         );

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'features/auth/presentation/sign_in_page.dart';
 import 'features/chat/data/chat_service.dart';
 import 'features/chat/presentation/chat_page.dart';
+import 'features/home/presentation/home_page.dart';
 import 'features/onboarding/presentation/onboarding_page.dart';
 import 'features/splash/presentation/splash_page.dart';
 
-enum AppStartScreen { splash, onboarding, chat }
+enum AppStartScreen { splash, onboarding, signIn, home, chat }
 
 class SiFinanceApp extends StatelessWidget {
   const SiFinanceApp({
@@ -35,6 +37,16 @@ class SiFinanceApp extends StatelessWidget {
           break;
         case AppStartScreen.onboarding:
           defaultHome = OnboardingPage(
+            chatService: effectiveChatService,
+          );
+          break;
+        case AppStartScreen.signIn:
+          defaultHome = SignInPage(
+            chatService: effectiveChatService,
+          );
+          break;
+        case AppStartScreen.home:
+          defaultHome = HomePage(
             chatService: effectiveChatService,
           );
           break;
@@ -72,6 +84,12 @@ class SiFinanceApp extends StatelessWidget {
               chatService: effectiveChatService,
             ),
         '/onboarding': (context) => OnboardingPage(
+              chatService: effectiveChatService,
+            ),
+        '/sign-in': (context) => SignInPage(
+              chatService: effectiveChatService,
+            ),
+        '/home': (context) => HomePage(
               chatService: effectiveChatService,
             ),
         '/chat': (context) => ChatPage(
