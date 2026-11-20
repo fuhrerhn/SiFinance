@@ -490,7 +490,7 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                             const SizedBox(height: 14),
-                            // Dot indicator
+                            // 3-dot indicator matching Figma
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -500,6 +500,15 @@ class _HomePageState extends State<HomePage> {
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF004CFF),
                                     borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFE5E7EB),
+                                    shape: BoxShape.circle,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
@@ -561,7 +570,7 @@ class _HomePageState extends State<HomePage> {
 
                             // Item 1: Transportasi
                             _buildTransactionItem(
-                              icon: Icons.directions_car_rounded,
+                              imageAsset: 'assets/icons/Mobil.png',
                               iconBgColor: const Color(0xFF1A56DB),
                               title: 'Transportasi',
                               subtitle: 'isi bensin motor',
@@ -575,7 +584,7 @@ class _HomePageState extends State<HomePage> {
 
                             // Item 2: Kesehatan
                             _buildTransactionItem(
-                              icon: Icons.medication_rounded,
+                              imageAsset: 'assets/icons/Hospital.png',
                               iconBgColor: const Color(0xFF00C466),
                               title: 'Kesehatan',
                               subtitle: 'beli vitamin untuk immune',
@@ -589,7 +598,7 @@ class _HomePageState extends State<HomePage> {
 
                             // Item 3: Makanan & Minuman
                             _buildTransactionItem(
-                              icon: Icons.local_drink_rounded,
+                              imageAsset: 'assets/icons/minuman.png',
                               iconBgColor: const Color(0xFFB82BFF),
                               title: 'Makanan & Minuman',
                               subtitle: 'Beli ikan bakar',
@@ -618,7 +627,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTransactionItem({
-    required IconData icon,
+    IconData? icon,
+    String? imageAsset,
     required Color iconBgColor,
     required String title,
     required String subtitle,
@@ -633,10 +643,19 @@ class _HomePageState extends State<HomePage> {
             color: iconBgColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
+          child: Center(
+            child: imageAsset != null
+                ? Image.asset(
+                    imageAsset,
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                  )
+                : Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 20,
+                  ),
           ),
         ),
         const SizedBox(width: 12),
@@ -701,7 +720,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _buildNavItem(
                   index: 0,
-                  icon: Icons.home_rounded,
+                  imageAsset: 'assets/icons/ic_beranda.png',
                   label: 'Beranda',
                 ),
               ),
@@ -709,7 +728,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _buildNavItem(
                   index: 1,
-                  icon: Icons.pie_chart_outline_rounded,
+                  imageAsset: 'assets/icons/ic_dashboard.png',
                   label: 'Dashboard',
                 ),
               ),
@@ -758,7 +777,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _buildNavItem(
                   index: 3,
-                  icon: Icons.account_balance_wallet_outlined,
+                  imageAsset: 'assets/icons/ic_budget.png',
                   label: 'Budget',
                 ),
               ),
@@ -779,7 +798,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNavItem({
     required int index,
-    required IconData icon,
+    IconData? icon,
+    String? imageAsset,
     required String label,
   }) {
     final isSelected = _selectedNavIndex == index;
@@ -792,11 +812,20 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 22,
-            ),
+            if (imageAsset != null)
+              Image.asset(
+                imageAsset,
+                width: 22,
+                height: 22,
+                fit: BoxFit.contain,
+                color: color,
+              )
+            else
+              Icon(
+                icon,
+                color: color,
+                size: 22,
+              ),
             const SizedBox(height: 3),
             Text(
               label,

@@ -424,24 +424,12 @@ class _SignInPageState extends State<SignInPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Google "G" Icon
-                        Container(
-                          width: 22,
-                          height: 22,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xFF004CFF),
-                          ),
-                          child: const Text(
-                            'G',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
+                        // Google "G" Icon (Group 65)
+                        Image.asset(
+                          'assets/icons/google_logo.png',
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(width: 10),
                         const Flexible(
