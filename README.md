@@ -5,13 +5,13 @@ SiFinance adalah aplikasi pengelolaan keuangan pribadi dan keluarga yang dikemba
 
 Repositori ini berisi pengembangan aplikasi Flutter berdasarkan [prototipe desain SiFinance](https://sifinance.framer.website/).
 
-> **Status pengembangan:** Tahap awal. Repositori ini dibuat menggunakan `flutter create sifinance`. Halaman AI Chat sudah diimplementasikan. Pengembangan fitur lainnya mengikuti rencana di bawah.
+> **Status pengembangan** — Dashboard Personal dan AI Chat tersedia.
 
 ## Fitur yang Direncanakan
 
 | Fitur | Deskripsi | Status |
 | --- | --- | --- |
-| **Dashboard** | Menampilkan ringkasan kondisi keuangan dan arus kas. | Direncanakan |
+| **Dashboard Personal** | Menampilkan total pengeluaran, tren enam bulan, dan rincian kategori, dengan filter periode. | Diimplementasikan |
 | **Pengelolaan Anggaran** | Menetapkan anggaran pengeluaran dan memantau penggunaannya. | Direncanakan |
 | **Pencatatan Transaksi Manual** | Mencatat pemasukan dan pengeluaran beserta detail transaksinya. | Direncanakan |
 | **Pencatatan Berbantuan AI** | Mempermudah pencatatan transaksi dengan bantuan kecerdasan buatan. | Direncanakan |
@@ -21,6 +21,7 @@ Repositori ini berisi pengembangan aplikasi Flutter berdasarkan [prototipe desai
 
 - **Flutter** = Framework untuk pengembangan aplikasi lintas platform.
 - **Dart** = Bahasa pemrograman yang digunakan.
+- **Supabase** = Autentikasi email/password, penyimpanan data, dan kontrol akses per akun.
 
 AI Chat menggunakan HTTP, flutter_svg, image_picker, dan file_selector. Backend Node.js menghubungkan model Gemini dengan pemeriksaan topik khusus SiFinance dan keuangan.
 
@@ -43,24 +44,43 @@ flutter pub get
 ```
 
 
-### Menjalankan Aplikasi
-Lihat perangkat yang tersedia:
+### Menjalankan Dashboard Personal
+
+1. Pasang [Supabase CLI](https://supabase.com/docs/guides/cli) v3 dan jalankan Docker.
+2. Jalankan `supabase start` dari root proyek. CLI menerapkan migrasi dan memuat data demo lokal.
+3. Salin `config/supabase.example.json` ke `config/supabase.json`. Isi URL API dan publishable key dari `supabase status`. Gunakan `http://10.0.2.2:54321` pada Android Emulator.
+
 ```bash
-flutter devices
-```
-Jalankan aplikasi:
-```bash
-flutter run
+flutter run --dart-define-from-file=config/supabase.json
 ```
 
-Untuk menjalankan pada perangkat tertentu, gunakan `flutter run -d <device-id>`.
+Masuk dengan `demo-a@example.com` atau `demo-b@example.com` dan kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan ini untuk kedua akun masing-masing Rp1.250.000 dan Rp875.000. Buat akun baru untuk melihat kondisi ketika belum ada transaksi. Filter mengubah total dan pembagian kategori. Grafik batang selalu memakai enam bulan kalender terakhir, termasuk bulan berjalan dan bulan dengan pengeluaran nol.
 
-> Aplikasi membuka halaman AI Chat. Tanpa `API_BASE_URL`, aplikasi berjalan dalam mode demo dengan balasan contoh.
+Untuk Supabase hosted, terapkan kedua migrasi ke proyek tujuan dan pastikan Data API mengekspos skema `public`. Gunakan URL HTTPS dan publishable key proyek. Jika konfirmasi email aktif di Auth, pengguna perlu mengonfirmasi alamat sebelum masuk. Data kategori referensi berasal dari migrasi. Akun dan transaksi demo berasal dari seed lokal.
+
+Jalankan verifikasi berikut saat stack lokal aktif.
+
+```bash
+flutter analyze
+flutter test
+supabase db lint --schema public,private --fail-on warning
+supabase test db
+flutter test test/supabase_integration_test.dart \
+  --dart-define-from-file=config/supabase.json \
+  --dart-define=RUN_SUPABASE_INTEGRATION=true
+```
+
+Setelah migrasi skema berubah, buat ulang tipe Dart dari database lokal. Generator ini memakai `psql` dan Python 3 karena generator Supabase resmi membutuhkan pustaka Supabase Flutter v3.
+
+```bash
+python3 scripts/generate_supabase_types.py postgresql://postgres:postgres@127.0.0.1:54322/postgres
+```
+
 ### AI Chat
 Tampilan meliputi sapaan, empat balasan cepat, bubble pesan, avatar, waktu pesan, menu lampiran, preview gambar, retry, dan reset percakapan. Font Poppins dan aset Figma disimpan di `assets/`. Kode halaman tersedia di `lib/features/chat/`.
-Preview dapat dijalankan melalui browser.
+AI Chat tersedia dari navigasi Dashboard. Untuk membuka AI Chat saja, gunakan mode pengembangan berikut. Mode demo menampilkan balasan contoh saat `API_BASE_URL` kosong.
 ```bash
-flutter run -d chrome
+flutter run -d chrome --dart-define=CHAT_ONLY=true
 ```
 
 Untuk memakai model AI, gunakan Node.js 22+, buat API key pada Google AI Studio, lalu salin konfigurasi berikut dan isi `GEMINI_API_KEY` di `server/.env`.
@@ -73,7 +93,7 @@ npm start
 Jalankan Flutter dari root proyek pada terminal lain.
 
 ```bash
-flutter run -d chrome --web-port 5173 --dart-define=API_BASE_URL=http://localhost:8080
+flutter run -d chrome --web-port 5173 --dart-define=CHAT_ONLY=true --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
 Android Emulator menggunakan `--dart-define=API_BASE_URL=http://10.0.2.2:8080`. HTTP lokal diizinkan pada build debug Android. Konfigurasi Android menggunakan NDK `30.0.16248370` dan `kotlin.incremental=false` untuk mengatasi cache Kotlin lintas drive Windows.
@@ -108,8 +128,8 @@ Direktori platform lain mungkin tersedia, tergantung platform yang diaktifkan sa
 
 ## Rencana Pengembangan
 - [x] Membuat proyek Flutter.
-- [ ] Mengimplementasikan sistem desain dan navigasi.
-- [ ] Membuat dashboard keuangan.
+- [x] Menambahkan navigasi Dashboard dan AI Chat.
+- [x] Membuat Dashboard Personal.
 - [ ] Mengimplementasikan pencatatan transaksi manual.
 - [ ] Menambahkan pembuatan dan pemantauan anggaran.
 - [ ] Mengintegrasikan pencatatan transaksi berbantuan AI.
