@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' as flutter_material;
 import 'package:material_ui/material_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -80,6 +81,10 @@ class SiFinanceApp extends StatelessWidget {
     return MaterialApp(
       title: 'SiFinance',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        flutter_material.DefaultMaterialLocalizations.delegate,
+        flutter_material.DefaultWidgetsLocalizations.delegate,
+      ],
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: 'Poppins',
