@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../chat/data/chat_service.dart';
 import '../../onboarding/presentation/onboarding_page.dart';
@@ -12,11 +13,13 @@ class SplashPage extends StatefulWidget {
     this.duration = const Duration(milliseconds: 2200),
     this.onFinished,
     this.chatService,
+    this.client,
   });
 
   final Duration? duration;
   final VoidCallback? onFinished;
   final ChatService? chatService;
+  final SupabaseClient? client;
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -64,6 +67,7 @@ class _SplashPageState extends State<SplashPage>
           pageBuilder: (context, animation, secondaryAnimation) =>
               OnboardingPage(
             chatService: widget.chatService,
+            client: widget.client,
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);

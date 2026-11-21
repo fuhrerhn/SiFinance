@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../chat/data/chat_service.dart';
 import '../../home/presentation/home_page.dart';
+import '../data/auth_repository.dart';
+import 'auth_form.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({
@@ -10,11 +12,13 @@ class SignInPage extends StatefulWidget {
     this.chatService,
     this.initialEmail,
     this.initialPassword,
+    this.repository,
   });
 
   final ChatService? chatService;
   final String? initialEmail;
   final String? initialPassword;
+  final AuthRepository? repository;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -25,6 +29,7 @@ class _SignInPageState extends State<SignInPage> {
   late final TextEditingController _passwordController;
 
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
   String? _emailError;
   String? _passwordError;
 
@@ -43,28 +48,53 @@ class _SignInPageState extends State<SignInPage> {
     super.dispose();
   }
 
-  void _validateAndSubmit() {
+  Future<void> _validateAndSubmit() async {
+    if (_isSubmitting) return;
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
+    final emailValid = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email);
+
     setState(() {
-      // Email validation: must contain @gmail.com
-      if (email.isEmpty || !email.toLowerCase().endsWith('@gmail.com')) {
-        _emailError = 'Email harus berisi @gmail.com';
+      if (email.isEmpty || !emailValid) {
+        _emailError = 'Email harus berisi alamat email valid';
       } else {
         _emailError = null;
       }
 
-      // Password validation: must be at least 6 characters and non-empty
       if (password.isEmpty || password.length < 6) {
-        _passwordError = 'Kata sandi yang anda masukkan salah';
+        _passwordError = 'Kata sandi minimal 6 karakter';
       } else {
         _passwordError = null;
       }
     });
 
     if (_emailError == null && _passwordError == null) {
-      _navigateToHome();
+      if (widget.repository != null) {
+        setState(() => _isSubmitting = true);
+        try {
+          await widget.repository!.signIn(email, password);
+        } catch (error) {
+          if (mounted) {
+            final errorMsg = authErrorMessage(error);
+            setState(() {
+              _passwordError = errorMsg;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMsg),
+                backgroundColor: Colors.red.shade700,
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() => _isSubmitting = false);
+          }
+        }
+      } else {
+        _navigateToHome();
+      }
     }
   }
 
@@ -352,7 +382,7 @@ class _SignInPageState extends State<SignInPage> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _validateAndSubmit,
+                    onPressed: _isSubmitting ? null : _validateAndSubmit,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: const Color(0xFF004CFF),
@@ -361,15 +391,24 @@ class _SignInPageState extends State<SignInPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Masuk',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'Masuk',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -453,12 +492,21 @@ class _SignInPageState extends State<SignInPage> {
                 Center(
                   child: GestureDetector(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Pendaftaran akun baru segera hadir'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      if (widget.repository != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                AuthForm(repository: widget.repository!),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Pendaftaran akun baru segera hadir'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     child: RichText(
                       text: const TextSpan(

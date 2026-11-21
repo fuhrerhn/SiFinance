@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'features/auth/data/auth_repository.dart';
+import 'features/auth/presentation/auth_page.dart';
 import 'features/auth/presentation/sign_in_page.dart';
 import 'features/chat/data/chat_service.dart';
 import 'features/chat/presentation/chat_page.dart';
@@ -12,38 +15,54 @@ enum AppStartScreen { splash, onboarding, signIn, home, chat }
 class SiFinanceApp extends StatelessWidget {
   const SiFinanceApp({
     super.key,
+    this.client,
     this.chatService,
-    this.startScreen = AppStartScreen.chat,
+    this.chatOnly = false,
+    this.startupError,
+    this.startScreen = AppStartScreen.splash,
     this.home,
   });
 
+  final SupabaseClient? client;
   final ChatService? chatService;
+  final bool chatOnly;
+  final String? startupError;
   final AppStartScreen startScreen;
   final Widget? home;
 
   @override
   Widget build(BuildContext context) {
     final effectiveChatService = chatService ?? createChatService();
+    final client = this.client;
 
     Widget defaultHome;
     if (home != null) {
       defaultHome = home!;
+    } else if (chatOnly) {
+      defaultHome = ChatPage(service: effectiveChatService);
     } else {
       switch (startScreen) {
         case AppStartScreen.splash:
           defaultHome = SplashPage(
             chatService: effectiveChatService,
+            client: client,
           );
           break;
         case AppStartScreen.onboarding:
           defaultHome = OnboardingPage(
             chatService: effectiveChatService,
+            client: client,
           );
           break;
         case AppStartScreen.signIn:
-          defaultHome = SignInPage(
-            chatService: effectiveChatService,
-          );
+          defaultHome = client != null
+              ? AuthPage(
+                  repository: AuthRepository(client),
+                  chatService: effectiveChatService,
+                )
+              : SignInPage(
+                  chatService: effectiveChatService,
+                );
           break;
         case AppStartScreen.home:
           defaultHome = HomePage(
@@ -82,13 +101,20 @@ class SiFinanceApp extends StatelessWidget {
       routes: {
         '/splash': (context) => SplashPage(
               chatService: effectiveChatService,
+              client: client,
             ),
         '/onboarding': (context) => OnboardingPage(
               chatService: effectiveChatService,
+              client: client,
             ),
-        '/sign-in': (context) => SignInPage(
-              chatService: effectiveChatService,
-            ),
+        '/sign-in': (context) => client != null
+            ? AuthPage(
+                repository: AuthRepository(client),
+                chatService: effectiveChatService,
+              )
+            : SignInPage(
+                chatService: effectiveChatService,
+              ),
         '/home': (context) => HomePage(
               chatService: effectiveChatService,
             ),

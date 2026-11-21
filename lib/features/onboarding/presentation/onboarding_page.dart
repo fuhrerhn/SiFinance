@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../auth/data/auth_repository.dart';
+import '../../auth/presentation/auth_page.dart';
 import '../../auth/presentation/sign_in_page.dart';
 import '../../chat/data/chat_service.dart';
 
@@ -22,11 +25,13 @@ class OnboardingPage extends StatefulWidget {
     this.initialPage = 3,
     this.onFinished,
     this.chatService,
+    this.client,
   });
 
   final int initialPage;
   final VoidCallback? onFinished;
   final ChatService? chatService;
+  final SupabaseClient? client;
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -101,9 +106,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
-            builder: (_) => SignInPage(
-              chatService: widget.chatService,
-            ),
+            builder: (_) {
+              if (widget.client != null) {
+                return AuthPage(
+                  repository: AuthRepository(widget.client!),
+                  chatService: widget.chatService,
+                );
+              }
+              return SignInPage(
+                chatService: widget.chatService,
+              );
+            },
           ),
         );
       }

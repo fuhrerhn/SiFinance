@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../data/chat_service.dart';
@@ -10,8 +10,9 @@ import '../domain/chat_message.dart';
 import 'chat_widgets.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.service});
+  const ChatPage({super.key, required this.service, this.onBack});
   final ChatService service;
+  final VoidCallback? onBack;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -315,15 +316,17 @@ class _ChatPageState extends State<ChatPage> {
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               tooltip: 'Kembali',
-                              onPressed: () {
-                                if (Navigator.of(context).canPop()) {
-                                  Navigator.of(context).pop();
-                                } else {
-                                  _notice(
-                                    'Anda berada di halaman utama AI Chat.',
-                                  );
-                                }
-                              },
+                              onPressed:
+                                  widget.onBack ??
+                                  () {
+                                    if (Navigator.of(context).canPop()) {
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      _notice(
+                                        'Anda berada di halaman utama AI Chat.',
+                                      );
+                                    }
+                                  },
                               icon: const DesignIcon('arrow-left'),
                             ),
                           ),

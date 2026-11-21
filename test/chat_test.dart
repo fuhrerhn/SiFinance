@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tekber/app.dart';
 import 'package:tekber/features/chat/data/chat_service.dart';
 import 'package:tekber/features/chat/domain/chat_message.dart';
@@ -38,7 +38,9 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final service = ControlledChatService();
-      await tester.pumpWidget(SiFinanceApp(chatService: service));
+      await tester.pumpWidget(
+        SiFinanceApp(chatOnly: true, chatService: service),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Tips dan Balasan Cepat'), findsOneWidget);
       await tester.tap(find.text('Bandingkan keuangan per periode'));
@@ -66,7 +68,7 @@ void main() {
     tester,
   ) async {
     final service = ControlledChatService();
-    await tester.pumpWidget(SiFinanceApp(chatService: service));
+    await tester.pumpWidget(SiFinanceApp(chatOnly: true, chatService: service));
     await tester.enterText(find.byType(TextField), 'Bantu budget');
     await tester.pump();
     await tester.tap(find.byTooltip('Kirim pesan'));
@@ -89,7 +91,7 @@ void main() {
 
   testWidgets('only the latest failed message offers retry', (tester) async {
     final service = ControlledChatService();
-    await tester.pumpWidget(SiFinanceApp(chatService: service));
+    await tester.pumpWidget(SiFinanceApp(chatOnly: true, chatService: service));
     for (final prompt in ['Bantu budget', 'Cek tabungan']) {
       await tester.enterText(find.byType(TextField), prompt);
       await tester.pump();
@@ -115,7 +117,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     tester.platformDispatcher.textScaleFactorTestValue = 1.6;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await tester.pumpWidget(SiFinanceApp(chatService: ControlledChatService()));
+    await tester.pumpWidget(
+      SiFinanceApp(chatOnly: true, chatService: ControlledChatService()),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
     expect(tester.takeException(), isNull);
