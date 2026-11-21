@@ -10,6 +10,8 @@
 	<string>Tekber</string>
 	<key>NSCameraUsageDescription</key>
 	<string>SiFinance menggunakan kamera untuk melampirkan foto struk transaksi ke AI Chat.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SiFinance menggunakan mikrofon untuk merekam suara di Voice Logging.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SiFinance mengakses gambar pilihan Anda untuk melampirkan struk transaksi.</string>
 	<key>CFBundleExecutable</key>

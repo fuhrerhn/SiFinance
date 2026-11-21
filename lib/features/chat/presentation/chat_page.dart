@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../voice_logging/presentation/voice_logging_page.dart';
 import '../data/chat_service.dart';
 import '../domain/chat_message.dart';
 import 'chat_widgets.dart';
@@ -263,7 +264,14 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  Widget? _composerAction() {
+  void _openVoiceLogging() {
+    _focus.unfocus();
+    Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => const VoiceLoggingPage()));
+  }
+
+  Widget _composerAction() {
     if (_sending) {
       return Semantics(
         label: 'Sedang berpikir',
@@ -278,7 +286,13 @@ class _ChatPageState extends State<ChatPage> {
         ),
       );
     }
-    if (_text.text.trim().isEmpty && _attachment == null) return null;
+    if (_text.text.trim().isEmpty && _attachment == null) {
+      return IconButton(
+        tooltip: 'Buka Voice Logging',
+        onPressed: _openVoiceLogging,
+        icon: const Icon(Icons.mic_none, color: chatInk, size: 20),
+      );
+    }
     return IconButton(
       tooltip: 'Kirim pesan',
       onPressed: () => _send(),
