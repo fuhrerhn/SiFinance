@@ -59,7 +59,7 @@ Untuk menjalankan pada perangkat tertentu, gunakan `flutter run -d <device-id>`.
 
 ### Voice Logging
 
-Ketuk ikon mikrofon di kolom pesan AI Chat, lalu ketuk mikrofon biru untuk mulai atau berhenti merekam. Setelah berhenti, gunakan **Putar rekaman** untuk mendengarkan hasilnya. Ikon chat membawa Anda kembali ke percakapan yang sama. Rekaman bersifat sementara dan dibersihkan saat layar ditutup. Perekaman dapat digunakan tanpa backend. Di web, mikrofon memerlukan `localhost` atau HTTPS.
+Di halaman utama AI Chat, ketuk panah kembali di kiri atas atau ikon mikrofon di kolom pesan untuk membuka Voice Logging. Ketuk mikrofon biru untuk mulai atau berhenti merekam. Setelah berhenti, gunakan **Putar rekaman** untuk mendengarkan hasilnya. Ikon chat membawa Anda kembali ke percakapan yang sama. Rekaman bersifat sementara dan dibersihkan saat layar ditutup. Perekaman dapat digunakan tanpa backend. Di web, mikrofon memerlukan `localhost` atau HTTPS.
 
 ### AI Chat
 Tampilan meliputi sapaan, empat balasan cepat, bubble pesan, avatar, waktu pesan, menu lampiran, preview gambar, retry, dan reset percakapan. Font Poppins dan aset Figma disimpan di `assets/`. Kode halaman tersedia di `lib/features/chat/`.

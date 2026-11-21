@@ -11,7 +11,7 @@ void main() {
     expect(find.text('Halo, ada yang bisa saya bantu?'), findsOneWidget);
   });
 
-  testWidgets('Voice Logging returns to the open chatbot on a compact screen', (
+  testWidgets('Both AI Chat controls open Voice Logging on a compact screen', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(320, 568);
@@ -23,16 +23,20 @@ void main() {
 
     await tester.pumpWidget(const SiFinanceApp());
     final chat = tester.state(find.byType(ChatPage));
-    await tester.tap(find.byTooltip('Buka Voice Logging'));
-    await tester.pumpAndSettle();
 
-    expect(find.text('AI Voice Logging'), findsOneWidget);
-    expect(find.byTooltip('Mulai rekaman'), findsOneWidget);
-    await tester.tap(find.byTooltip('Buka AI Chat'));
-    await tester.pumpAndSettle();
+    for (final entryPoint in ['Kembali', 'Buka Voice Logging']) {
+      await tester.tap(find.byTooltip(entryPoint));
+      await tester.pumpAndSettle();
 
-    expect(tester.state(find.byType(ChatPage)), same(chat));
-    expect(find.text('AI Voice Logging'), findsNothing);
+      expect(find.text('AI Voice Logging'), findsOneWidget);
+      expect(find.byTooltip('Mulai rekaman'), findsOneWidget);
+      await tester.tap(find.byTooltip('Buka AI Chat'));
+      await tester.pumpAndSettle();
+
+      expect(tester.state(find.byType(ChatPage)), same(chat));
+      expect(find.text('AI Voice Logging'), findsNothing);
+    }
+
     expect(tester.takeException(), isNull);
   });
 }

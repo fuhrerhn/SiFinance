@@ -333,9 +333,7 @@ class _ChatPageState extends State<ChatPage> {
                                 if (Navigator.of(context).canPop()) {
                                   Navigator.of(context).pop();
                                 } else {
-                                  _notice(
-                                    'Anda berada di halaman utama AI Chat.',
-                                  );
+                                  _openVoiceLogging();
                                 }
                               },
                               icon: const DesignIcon('arrow-left'),
