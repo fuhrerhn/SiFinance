@@ -88,18 +88,29 @@ void main() {
       expect(summaryB.totalExpense, 875000);
       expect(summaryB.categorySpendings.single.category.name, 'Kesehatan');
 
+      expect(await clientA.from('budget').select('total_terpakai').single(), {
+        'total_terpakai': 450000,
+      });
+      expect(await clientA.from('family_group').select('id'), hasLength(1));
+      expect(
+        await clientA.from('sesi_ai_chatbot').select('sesi_id'),
+        hasLength(1),
+      );
+      expect(await clientA.from('chat').select('pesan'), hasLength(2));
+      expect(await clientB.from('chat').select('pesan'), hasLength(1));
+
       // Query the other owner's ID directly so this assertion relies on RLS.
       expect(
-        await clientA.from('transactions').select('id').eq('user_id', userB),
+        await clientA.from('transaksi').select('id').eq('user_id', userB),
         isEmpty,
       );
       expect(
-        await clientB.from('transactions').select('id').eq('user_id', userA),
+        await clientB.from('transaksi').select('id').eq('user_id', userA),
         isEmpty,
       );
       await expectLater(
         clientB
-            .from('transactions')
+            .from('transaksi')
             .update({'description': 'Other account'})
             .eq('user_id', userA)
             .select('id'),
@@ -119,9 +130,15 @@ void main() {
         );
         expect(signedIn, isTrue);
         final userId = authA.currentState.userId!;
-        expect(await clientA.from('profiles').select('full_name').single(), {
+        expect(await clientA.from('akun').select('full_name').single(), {
           'full_name': 'Pengguna Integrasi',
         });
+        expect(await clientA.from('family_group').select('id'), isEmpty);
+        expect(await clientA.from('chat').select('id'), isEmpty);
+        await expectLater(
+          clientA.from('akun').update({'family_group_id': 1}).eq('id', userId),
+          throwsA(isA<PostgrestException>()),
+        );
         final session = clientA.auth.currentSession!;
         await clientB.auth.recoverSession(jsonEncode(session.toJson()));
         expect(authB.currentState.userId, userId);
@@ -139,7 +156,7 @@ void main() {
         await signedOut;
         expect(authA.currentState.userId, isNull);
         await expectLater(
-          clientA.from('transactions').select('id'),
+          clientA.from('transaksi').select('id'),
           throwsA(isA<PostgrestException>()),
         );
         await authA.signIn(email, _password);

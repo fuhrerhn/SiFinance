@@ -40,9 +40,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
     String? cursor;
     while (true) {
       var query = client
-          .from(TransactionsRow.table)
+          .from(TransaksiRow.table)
           .select(
-            'id,type,transaction_date,amount,categories(id,name,color_hex)',
+            'id,type,transaction_date,amount,kategori(id,name,color_hex)',
           )
           .eq('user_id', userId)
           .eq('type', 'expense');
@@ -57,9 +57,9 @@ class SupabaseDashboardRepository implements DashboardRepository {
       final rows = await query.order('id', ascending: true).limit(500);
       if (rows.isEmpty) return transactions;
       for (final json in rows) {
-        final row = TransactionsRow(json);
-        final category = CategoriesRow(
-          json['categories'] as Map<String, dynamic>,
+        final row = TransaksiRow(json);
+        final category = KategoriRow(
+          json['kategori'] as Map<String, dynamic>,
         );
         // numeric(14,2) fits exactly in integer hundredths after rounding.
         transactions.add(

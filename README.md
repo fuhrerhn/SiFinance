@@ -48,13 +48,13 @@ flutter pub get
 
 1. Pasang [Supabase CLI](https://supabase.com/docs/guides/cli) v3 dan jalankan Docker.
 2. Jalankan `supabase start` dari root proyek. CLI menerapkan migrasi dan memuat data demo lokal.
-3. Salin `config/supabase.example.json` ke `config/supabase.json`. Isi URL API dan publishable key dari `supabase status`. Gunakan `http://10.0.2.2:54321` pada Android Emulator.
+3. Salin `config/supabase.example.json` ke `config/supabase.colima.local.json`. Isi URL API dan publishable key dari `supabase status`. Gunakan `http://10.0.2.2:54321` pada Android Emulator.
 
 ```bash
-flutter run --dart-define-from-file=config/supabase.json
+flutter run --dart-define-from-file=config/supabase.colima.local.json
 ```
 
-Untuk membuka aplikasi di browser melalui server pengembangan lokal, jalankan:
+Untuk membuka aplikasi di browser dengan Supabase hosted, isi `config/supabase.json` dengan URL dan publishable key proyek. Jalankan perintah berikut. Untuk Colima, gunakan file konfigurasi lokal di atas.
 
 ```bash
 flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5173 --dart-define-from-file=config/supabase.json
@@ -63,9 +63,23 @@ flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5173 --dart-define
 Buka `http://127.0.0.1:5173/` langsung untuk masuk. Port `54321` digunakan aplikasi untuk mengakses API Supabase. Jika tab masih membuka URL konfirmasi lama dengan kode atau error autentikasi, buka kembali URL utama aplikasi.
 
 
-Masuk dengan `demo-a@example.com` atau `demo-b@example.com` dan kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan ini untuk kedua akun masing-masing Rp1.250.000 dan Rp875.000. Buat akun baru untuk melihat kondisi ketika belum ada transaksi. Filter mengubah total dan pembagian kategori. Grafik batang selalu memakai enam bulan kalender terakhir, termasuk bulan berjalan dan bulan dengan pengeluaran nol.
+Pada Supabase lokal, masuk dengan `demo-a@example.com` atau `demo-b@example.com` dan kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan ini untuk kedua akun masing-masing Rp1.250.000 dan Rp875.000. Buat akun baru untuk melihat kondisi ketika belum ada transaksi. Filter mengubah total dan pembagian kategori. Grafik batang selalu memakai enam bulan kalender terakhir, termasuk bulan berjalan dan bulan dengan pengeluaran nol.
 
-Untuk Supabase hosted, terapkan kedua migrasi ke proyek tujuan dan pastikan Data API mengekspos skema `public`. Gunakan URL HTTPS dan publishable key proyek. Jika konfirmasi email aktif di Auth, pengguna perlu mengonfirmasi alamat sebelum masuk. Data kategori referensi berasal dari migrasi. Akun dan transaksi demo berasal dari seed lokal.
+Untuk Supabase hosted, terapkan seluruh migrasi ke proyek tujuan dan pastikan Data API mengekspos skema `public`. Gunakan URL HTTPS dan publishable key proyek pada konfigurasi Flutter. Tambahkan data demo secara terpisah dari migrasi jika proyek memang dipakai untuk pengembangan.
+
+#### Pemetaan skema ke CDR
+
+| Entitas CDR | Implementasi PostgreSQL |
+| --- | --- |
+| `akun` | `id` UUID merujuk ke Supabase Auth, `full_name` untuk nama, `family_group_id` opsional, dan tiga pengaturan privasi boolean. Email, kata sandi, dan kode verifikasi dikelola Supabase Auth. |
+| `transaksi` | `user_id` dan `category_id` sebagai FK, `amount` sebagai `numeric(14,2)`, `transaction_date` sebagai `date`, serta tipe, keterangan, lokasi, akun pembayaran, dan `transaksi_pribadi`. |
+| `kategori` | `name` dan `group_name` bertipe `text`, dengan ID `bigint` dan metadata tampilan. |
+| `budget` | FK ke akun dan kategori, `limit_amount` bertipe `numeric(14,2)`, tipe periode, dan tanggal awal/akhir. Field API `total_terpakai` dihitung dari pengeluaran pada periode anggaran. Di SQL, gunakan `public.total_terpakai(b)` dengan `b` sebagai baris anggaran. |
+| `family_group` | ID `bigint`, `kode_qr`, dan `tautan_undangan`. |
+| `sesi_ai_chatbot` | `sesi_id` dan `akun_id` bertipe UUID, serta `waktu_mulai` bertipe `timestamptz`. |
+| `chat` | ID dan FK sesi bertipe UUID, `waktu_kirim` bertipe `timestamptz`, serta `pesan`, `lampiran` opsional, dan `pengirim`. |
+
+Seed lokal mengisi dua akun, sembilan transaksi, dua anggaran, satu grup keluarga, dua sesi AI, dan tiga pesan. Grup dan riwayat chat tersedia di database. Tab AI Chat yang ada masih menyimpan percakapan selama halaman terbuka, dan transaksi pribadi hanya terlihat oleh pemiliknya.
 
 Jalankan verifikasi berikut saat stack lokal aktif.
 
@@ -75,7 +89,7 @@ flutter test
 supabase db lint --schema public,private --fail-on warning
 supabase test db
 flutter test test/supabase_integration_test.dart \
-  --dart-define-from-file=config/supabase.json \
+  --dart-define-from-file=config/supabase.colima.local.json \
   --dart-define=RUN_SUPABASE_INTEGRATION=true
 ```
 

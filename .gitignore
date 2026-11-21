@@ -52,3 +52,4 @@ server/.env
 
 # Local Supabase build configuration
 /config/supabase.json
+/config/supabase.*.local.json
