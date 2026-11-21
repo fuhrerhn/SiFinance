@@ -49,3 +49,7 @@ app.*.map.json
 .env
 server/.env
 .codex-tmp/
+
+# Local Supabase build configuration
+/config/supabase.json
+/config/supabase.*.local.json
