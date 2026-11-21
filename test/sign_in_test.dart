@@ -27,6 +27,6 @@ void main() {
     await tester.tap(masukFinder);
     await tester.pumpAndSettle();
 
-    expect(find.text('Email harus berisi alamat email valid'), findsOneWidget);
+    expect(find.text('Email harus berisi @gmail.com'), findsOneWidget);
   });
 }

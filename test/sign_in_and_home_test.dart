@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tekber/features/auth/presentation/sign_in_page.dart';
 import 'package:tekber/features/onboarding/presentation/onboarding_page.dart';
@@ -93,7 +93,9 @@ void main() {
     );
 
     // Tap Masuk button
-    await tester.tap(find.text('Masuk'));
+    final masukBtn = find.text('Masuk');
+    await tester.ensureVisible(masukBtn);
+    await tester.tap(masukBtn);
     await tester.pumpAndSettle();
 
     // Verify error messages match Sign In(3).png
@@ -127,7 +129,9 @@ void main() {
     );
 
     // Tap Masuk
-    await tester.tap(find.text('Masuk'));
+    final masukBtn = find.text('Masuk');
+    await tester.ensureVisible(masukBtn);
+    await tester.tap(masukBtn);
     await tester.pumpAndSettle();
 
     // Verify HomePage renders
@@ -177,7 +181,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Masuk dengan Google'));
+    final googleBtn = find.text('Masuk dengan Google');
+    await tester.ensureVisible(googleBtn);
+    await tester.tap(googleBtn);
     await tester.pumpAndSettle();
 
     expect(find.text('Hai Kamu!'), findsOneWidget);

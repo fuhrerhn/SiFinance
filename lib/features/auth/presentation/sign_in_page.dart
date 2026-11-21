@@ -53,17 +53,15 @@ class _SignInPageState extends State<SignInPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    final emailValid = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email);
-
     setState(() {
-      if (email.isEmpty || !emailValid) {
-        _emailError = 'Email harus berisi alamat email valid';
+      if (email.isEmpty || !email.toLowerCase().endsWith('@gmail.com')) {
+        _emailError = 'Email harus berisi @gmail.com';
       } else {
         _emailError = null;
       }
 
       if (password.isEmpty || password.length < 6) {
-        _passwordError = 'Kata sandi minimal 6 karakter';
+        _passwordError = 'Kata sandi yang anda masukkan salah';
       } else {
         _passwordError = null;
       }
