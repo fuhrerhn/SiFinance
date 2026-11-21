@@ -14,7 +14,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: OnboardingPage(initialPage: 3),
+        home: OnboardingPage(),
       ),
     );
     await tester.pumpAndSettle();
@@ -34,7 +34,7 @@ void main() {
     expect(find.text('Kembali'), findsOneWidget);
     expect(find.text('Lanjut'), findsOneWidget);
 
-    // Verify Page Indicator (4 dots exist)
+    // Verify Page Indicator (4 dots exist, last one is active/blue)
     final animatedContainers = find.byType(AnimatedContainer);
     expect(animatedContainers, findsNWidgets(4));
 
@@ -54,7 +54,6 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OnboardingPage(
-          initialPage: 3,
           onFinished: () {
             finished = true;
           },
@@ -63,17 +62,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Tap Kembali -> moves to page 2 (Transparansi Finansial)
-    await tester.tap(find.text('Kembali'));
-    await tester.pumpAndSettle();
-    expect(find.text('Transparansi Finansial'), findsOneWidget);
-
-    // Tap Lanjut -> moves back to page 3 (Kelola Uang Lebih Cerdas)
-    await tester.tap(find.text('Lanjut'));
-    await tester.pumpAndSettle();
+    // Verify title
     expect(find.text('Kelola Uang Lebih Cerdas'), findsOneWidget);
 
-    // Tap Lanjut on final page -> calls onFinished
+    // Tap Lanjut -> calls onFinished
     await tester.tap(find.text('Lanjut'));
     await tester.pumpAndSettle();
     expect(finished, isTrue);

@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../chat/data/chat_service.dart';
 import '../../home/presentation/home_page.dart';
+import '../../onboarding/presentation/onboarding_page.dart';
 import '../data/auth_repository.dart';
 import 'auth_form.dart';
 
@@ -139,6 +140,14 @@ class _SignInPageState extends State<SignInPage> {
                   onPressed: () {
                     if (Navigator.of(context).canPop()) {
                       Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute<void>(
+                          builder: (_) => OnboardingPage(
+                            chatService: widget.chatService,
+                          ),
+                        ),
+                      );
                     }
                   },
                 ),

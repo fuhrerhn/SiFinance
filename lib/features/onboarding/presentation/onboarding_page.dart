@@ -7,19 +7,7 @@ import '../../auth/presentation/auth_page.dart';
 import '../../auth/presentation/sign_in_page.dart';
 import '../../chat/data/chat_service.dart';
 
-class OnboardingItem {
-  const OnboardingItem({
-    required this.title,
-    required this.description,
-    required this.imageAsset,
-  });
-
-  final String title;
-  final String description;
-  final String imageAsset;
-}
-
-class OnboardingPage extends StatefulWidget {
+class OnboardingPage extends StatelessWidget {
   const OnboardingPage({
     super.key,
     this.initialPage = 3,
@@ -33,93 +21,31 @@ class OnboardingPage extends StatefulWidget {
   final ChatService? chatService;
   final SupabaseClient? client;
 
-  @override
-  State<OnboardingPage> createState() => _OnboardingPageState();
-}
-
-class _OnboardingPageState extends State<OnboardingPage> {
-  late final PageController _pageController;
-  late int _currentPage;
-
-  static const List<OnboardingItem> _items = [
-    OnboardingItem(
-      title: 'Pencatatan Keuangan Mudah',
-      description:
-          'Catat setiap transaksi masuk dan keluar secara instan untuk memantau arus kas harianmu secara rapi.',
-      imageAsset: 'assets/images/onboarding_manage_money.png',
-    ),
-    OnboardingItem(
-      title: 'Smart Budgeting & Alert',
-      description:
-          'Atur batas anggaran per kategori dan dapatkan peringatan sebelum pengeluaran melebihi rencana keuangan.',
-      imageAsset: 'assets/images/onboarding_manage_money.png',
-    ),
-    OnboardingItem(
-      title: 'Transparansi Finansial',
-      description:
-          'Bagikan dan pantau anggaran bersama keluarga dengan kontrol privasi penuh melalui selective sharing.',
-      imageAsset: 'assets/images/onboarding_manage_money.png',
-    ),
-    OnboardingItem(
-      title: 'Kelola Uang Lebih Cerdas',
-      description:
-          'Pantau pemasukan, pengeluaran, dan target keuanganmu dalam satu aplikasi yang simpel dan mudah digunakan.',
-      imageAsset: 'assets/images/onboarding_manage_money.png',
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPage = widget.initialPage.clamp(0, _items.length - 1);
-    _pageController = PageController(initialPage: _currentPage);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _onKembali() {
-    if (_currentPage > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
+  void _onKembali(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
     }
   }
 
-  void _onLanjut() {
-    if (_currentPage < _items.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+  void _onLanjut(BuildContext context) {
+    if (onFinished != null) {
+      onFinished!();
     } else {
-      if (widget.onFinished != null) {
-        widget.onFinished!();
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (_) {
-              if (widget.client != null) {
-                return AuthPage(
-                  repository: AuthRepository(widget.client!),
-                  chatService: widget.chatService,
-                );
-              }
-              return SignInPage(
-                chatService: widget.chatService,
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) {
+            if (client != null) {
+              return AuthPage(
+                repository: AuthRepository(client!),
+                chatService: chatService,
               );
-            },
-          ),
-        );
-      }
+            }
+            return SignInPage(
+              chatService: chatService,
+            );
+          },
+        ),
+      );
     }
   }
 
@@ -139,90 +65,77 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: Column(
             children: [
               Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _items.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final item = _items[index];
-                    return SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 52),
-                          // Illustration
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Image.asset(
-                              item.imageAsset,
-                              width: 318,
-                              height: 214,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          const SizedBox(height: 56),
-                          // Title
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Text(
-                              item.title,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF101828),
-                                height: 1.25,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // Description
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(
-                              item.description,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFF101828),
-                                height: 1.45,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 38),
-                          // Page Indicators
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(_items.length, (dotIndex) {
-                              final isActive = _currentPage == dotIndex;
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 2.5),
-                                width: isActive ? 20 : 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: isActive
-                                      ? const Color(0xFF004CFF)
-                                      : const Color(0xFFE2E4E8),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              );
-                            }),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 52),
+                      // Illustration
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Image.asset(
+                          'assets/images/onboarding_manage_money.png',
+                          width: 318,
+                          height: 214,
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 56),
+                      // Title
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          'Kelola Uang Lebih Cerdas',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF101828),
+                            height: 1.25,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Description
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          'Pantau pemasukan, pengeluaran, dan target keuanganmu dalam satu aplikasi yang simpel dan mudah digunakan.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF101828),
+                            height: 1.45,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 38),
+                      // Page Indicators (4 dots with 4th blue dot at the end)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(4, (dotIndex) {
+                          final isActive = dotIndex == 3;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                            width: isActive ? 20 : 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? const Color(0xFF004CFF)
+                                  : const Color(0xFFE2E4E8),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
               // Bottom Action Buttons
@@ -240,7 +153,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       child: SizedBox(
                         height: 48,
                         child: OutlinedButton(
-                          onPressed: _onKembali,
+                          onPressed: () => _onKembali(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
                               color: Color(0xFF004CFF),
@@ -271,7 +184,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       child: SizedBox(
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: _onLanjut,
+                          onPressed: () => _onLanjut(context),
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             backgroundColor: const Color(0xFF004CFF),

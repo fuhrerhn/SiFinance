@@ -28,6 +28,12 @@ void main() {
     expect(find.text('Masukkan kata sandi anda'), findsOneWidget);
     expect(find.text('Masuk'), findsOneWidget);
     expect(find.text('Masuk dengan Google'), findsOneWidget);
+
+    // Tap Back Button to return to OnboardingPage
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Kelola Uang Lebih Cerdas'), findsOneWidget);
   });
 
   testWidgets('Password visibility toggle works via Eye Icon', (
