@@ -26,6 +26,7 @@ Future<void> main() async {
       client: client,
       chatOnly: SupabaseConfig.chatOnly,
       startupError: startupError,
+      startScreen: AppStartScreen.splash,
     ),
   );
 }

@@ -7,7 +7,7 @@ import '../../chat/data/chat_service.dart';
 import '../../dashboard/data/supabase_dashboard_repository.dart';
 import '../data/auth_repository.dart';
 import '../domain/auth_state.dart';
-import 'auth_form.dart';
+import 'sign_in_page.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key, required this.repository, this.chatService});
@@ -58,7 +58,12 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     final userId = _userId;
-    if (userId == null) return AuthForm(repository: widget.repository);
+    if (userId == null) {
+      return SignInPage(
+        repository: widget.repository,
+        chatService: widget.chatService,
+      );
+    }
 
     return AppShell(
       key: ValueKey(userId),

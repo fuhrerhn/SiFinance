@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tekber/app.dart';
 
+
 void main() {
   testWidgets('Chat-only mode opens AI Chat', (WidgetTester tester) async {
     await tester.pumpWidget(const SiFinanceApp(chatOnly: true));
