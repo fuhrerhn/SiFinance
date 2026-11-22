@@ -5,7 +5,7 @@ import '../../chat/data/chat_service.dart';
 import '../../home/presentation/home_page.dart';
 import '../../onboarding/presentation/onboarding_page.dart';
 import '../data/auth_repository.dart';
-import 'auth_form.dart';
+import 'sign_up_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({
@@ -38,8 +38,9 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     super.initState();
     _emailController = TextEditingController(text: widget.initialEmail ?? '');
-    _passwordController =
-        TextEditingController(text: widget.initialPassword ?? '');
+    _passwordController = TextEditingController(
+      text: widget.initialPassword ?? '',
+    );
   }
 
   @override
@@ -143,9 +144,8 @@ class _SignInPageState extends State<SignInPage> {
                     } else {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute<void>(
-                          builder: (_) => OnboardingPage(
-                            chatService: widget.chatService,
-                          ),
+                          builder: (_) =>
+                              OnboardingPage(chatService: widget.chatService),
                         ),
                       );
                     }
@@ -367,7 +367,9 @@ class _SignInPageState extends State<SignInPage> {
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Fitur reset sandi sedang dipersiapkan'),
+                          content: Text(
+                            'Fitur reset sandi sedang dipersiapkan',
+                          ),
                           duration: Duration(seconds: 2),
                         ),
                       );
@@ -423,10 +425,7 @@ class _SignInPageState extends State<SignInPage> {
                 Row(
                   children: const [
                     Expanded(
-                      child: Divider(
-                        color: Color(0xFFE4E7EC),
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Color(0xFFE4E7EC), thickness: 1),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -440,10 +439,7 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                     Expanded(
-                      child: Divider(
-                        color: Color(0xFFE4E7EC),
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Color(0xFFE4E7EC), thickness: 1),
                     ),
                   ],
                 ),
@@ -502,15 +498,17 @@ class _SignInPageState extends State<SignInPage> {
                       if (widget.repository != null) {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (_) =>
-                                AuthForm(repository: widget.repository!),
+                            builder: (_) => SignUpPage(
+                              chatService: widget.chatService,
+                              repository: widget.repository,
+                            ),
                           ),
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pendaftaran akun baru segera hadir'),
-                            duration: Duration(seconds: 2),
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                SignUpPage(chatService: widget.chatService),
                           ),
                         );
                       }
