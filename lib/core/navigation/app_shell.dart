@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/budget/data/budget_repository.dart';
+import '../../features/budget/presentation/budget_page.dart';
 import '../../features/chat/data/chat_service.dart';
 import '../../features/chat/presentation/chat_page.dart';
 import '../../features/dashboard/data/dashboard_repository.dart';
@@ -10,11 +12,13 @@ class AppShell extends StatefulWidget {
   const AppShell({
     super.key,
     required this.dashboardRepository,
+    required this.budgetRepository,
     required this.authRepository,
     this.chatService,
   });
 
   final DashboardRepository dashboardRepository;
+  final BudgetRepository budgetRepository;
   final AuthRepository authRepository;
   final ChatService? chatService;
 
@@ -66,6 +70,7 @@ class _AppShellState extends State<AppShell> {
             ChatPage(service: _chatService, onBack: () => _selectTab(0))
           else
             const SizedBox.shrink(),
+          BudgetPage(repository: widget.budgetRepository),
         ],
       ),
       bottomNavigationBar: MediaQuery.viewInsetsOf(context).bottom > 0
@@ -83,6 +88,11 @@ class _AppShellState extends State<AppShell> {
                   icon: Icon(Icons.chat_bubble_outline),
                   selectedIcon: Icon(Icons.chat_bubble),
                   label: 'AI Chat',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.account_balance_wallet_outlined),
+                  selectedIcon: Icon(Icons.account_balance_wallet),
+                  label: 'Budget',
                 ),
               ],
             ),

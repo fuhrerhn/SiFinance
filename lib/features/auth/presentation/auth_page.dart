@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/navigation/app_shell.dart';
+import '../../budget/data/supabase_budget_repository.dart';
 import '../../chat/data/chat_service.dart';
 import '../../dashboard/data/supabase_dashboard_repository.dart';
 import '../data/auth_repository.dart';
@@ -68,6 +69,10 @@ class _AuthPageState extends State<AuthPage> {
     return AppShell(
       key: ValueKey(userId),
       dashboardRepository: SupabaseDashboardRepository(
+        widget.repository.client,
+        userId,
+      ),
+      budgetRepository: SupabaseBudgetRepository(
         widget.repository.client,
         userId,
       ),
