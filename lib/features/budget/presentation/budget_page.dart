@@ -8,9 +8,14 @@ import 'widgets/budget_card.dart';
 import 'widgets/budget_state_views.dart';
 
 class BudgetPage extends StatefulWidget {
-  const BudgetPage({super.key, required this.repository});
+  const BudgetPage({
+    super.key,
+    required this.repository,
+    this.transactionRevision = 0,
+  });
 
   final BudgetRepository repository;
+  final int transactionRevision;
 
   @override
   State<BudgetPage> createState() => _BudgetPageState();
@@ -18,6 +23,14 @@ class BudgetPage extends StatefulWidget {
 
 class _BudgetPageState extends State<BudgetPage> {
   late final _controller = BudgetController(widget.repository)..reload();
+
+  @override
+  void didUpdateWidget(covariant BudgetPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactionRevision != widget.transactionRevision) {
+      _controller.reload();
+    }
+  }
 
   @override
   void dispose() {

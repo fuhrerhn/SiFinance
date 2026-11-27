@@ -66,14 +66,20 @@ class SiFinanceApp extends StatelessWidget {
           break;
         case AppStartScreen.signUp:
           defaultHome = client != null
-              ? SignUpPage(
+              ? AuthPage(
                   repository: AuthRepository(client),
                   chatService: effectiveChatService,
+                  startWithSignUp: true,
                 )
               : SignUpPage(chatService: effectiveChatService);
           break;
         case AppStartScreen.home:
-          defaultHome = HomePage(chatService: effectiveChatService);
+          defaultHome = client != null
+              ? AuthPage(
+                  repository: AuthRepository(client),
+                  chatService: effectiveChatService,
+                )
+              : HomePage(chatService: effectiveChatService);
           break;
         case AppStartScreen.chat:
           defaultHome = ChatPage(service: effectiveChatService);
@@ -118,12 +124,18 @@ class SiFinanceApp extends StatelessWidget {
               )
             : SignInPage(chatService: effectiveChatService),
         '/sign-up': (context) => client != null
-            ? SignUpPage(
+            ? AuthPage(
+                repository: AuthRepository(client),
+                chatService: effectiveChatService,
+                startWithSignUp: true,
+              )
+            : SignUpPage(chatService: effectiveChatService),
+        '/home': (context) => client != null
+            ? AuthPage(
                 repository: AuthRepository(client),
                 chatService: effectiveChatService,
               )
-            : SignUpPage(chatService: effectiveChatService),
-        '/home': (context) => HomePage(chatService: effectiveChatService),
+            : HomePage(chatService: effectiveChatService),
         '/chat': (context) => ChatPage(service: effectiveChatService),
       },
     );

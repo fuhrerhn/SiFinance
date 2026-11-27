@@ -14,12 +14,14 @@ class SignInPage extends StatefulWidget {
     this.initialEmail,
     this.initialPassword,
     this.repository,
+    this.onSignUp,
   });
 
   final ChatService? chatService;
   final String? initialEmail;
   final String? initialPassword;
   final AuthRepository? repository;
+  final VoidCallback? onSignUp;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -56,7 +58,11 @@ class _SignInPageState extends State<SignInPage> {
     final password = _passwordController.text;
 
     setState(() {
-      if (email.isEmpty || !email.toLowerCase().endsWith('@gmail.com')) {
+      if (widget.repository != null &&
+          !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email)) {
+        _emailError = 'Masukkan alamat email yang valid';
+      } else if (widget.repository == null &&
+          !email.toLowerCase().endsWith('@gmail.com')) {
         _emailError = 'Email harus berisi @gmail.com';
       } else {
         _emailError = null;
@@ -144,8 +150,10 @@ class _SignInPageState extends State<SignInPage> {
                     } else {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute<void>(
-                          builder: (_) =>
-                              OnboardingPage(chatService: widget.chatService),
+                          builder: (_) => OnboardingPage(
+                            chatService: widget.chatService,
+                            client: widget.repository?.client,
+                          ),
                         ),
                       );
                     }
@@ -449,7 +457,9 @@ class _SignInPageState extends State<SignInPage> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton(
-                    onPressed: _navigateToHome,
+                    onPressed: widget.repository == null
+                        ? _navigateToHome
+                        : null,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       side: const BorderSide(
@@ -494,25 +504,18 @@ class _SignInPageState extends State<SignInPage> {
                 // Footer: Belum punya akun? Daftar
                 Center(
                   child: GestureDetector(
-                    onTap: () {
-                      if (widget.repository != null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => SignUpPage(
-                              chatService: widget.chatService,
-                              repository: widget.repository,
+                    onTap:
+                        widget.onSignUp ??
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => SignUpPage(
+                                chatService: widget.chatService,
+                                repository: widget.repository,
+                              ),
                             ),
-                          ),
-                        );
-                      } else {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                SignUpPage(chatService: widget.chatService),
-                          ),
-                        );
-                      }
-                    },
+                          );
+                        },
                     child: RichText(
                       text: const TextSpan(
                         text: 'Belum punya akun? ',
