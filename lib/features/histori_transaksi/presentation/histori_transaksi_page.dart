@@ -15,10 +15,12 @@ class HistoriTransaksiPage extends StatefulWidget {
   const HistoriTransaksiPage({
     super.key,
     required this.repository,
+    this.transactionRevision = 0,
     this.onBack,
   });
 
   final HistoriTransaksiRepository repository;
+  final int transactionRevision;
   final VoidCallback? onBack;
 
   @override
@@ -28,6 +30,14 @@ class HistoriTransaksiPage extends StatefulWidget {
 class _HistoriTransaksiPageState extends State<HistoriTransaksiPage> {
   late final HistoriTransaksiController _controller =
       HistoriTransaksiController(widget.repository);
+
+  @override
+  void didUpdateWidget(covariant HistoriTransaksiPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactionRevision != widget.transactionRevision) {
+      _controller.load();
+    }
+  }
 
   @override
   void initState() {
