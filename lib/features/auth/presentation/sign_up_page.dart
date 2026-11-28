@@ -8,10 +8,16 @@ import '../data/auth_repository.dart';
 import 'sign_in_page.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key, this.chatService, this.repository});
+  const SignUpPage({
+    super.key,
+    this.chatService,
+    this.repository,
+    this.onSignIn,
+  });
 
   final ChatService? chatService;
   final AuthRepository? repository;
+  final VoidCallback? onSignIn;
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -61,9 +67,15 @@ class _SignUpPageState extends State<SignUpPage> {
 
     setState(() {
       _nameError = name.isEmpty ? 'Nama wajib diisi' : null;
-      _emailError = email.isEmpty || !email.toLowerCase().endsWith('@gmail.com')
-          ? 'Email harus berisi @gmail.com'
-          : null;
+      if (widget.repository != null) {
+        _emailError = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email)
+            ? null
+            : 'Masukkan alamat email yang valid';
+      } else {
+        _emailError = email.toLowerCase().endsWith('@gmail.com')
+            ? null
+            : 'Email harus berisi @gmail.com';
+      }
       _passwordError = password.isEmpty || password.length < 6
           ? 'Kata sandi minimal 6 karakter'
           : null;
@@ -82,8 +94,15 @@ class _SignUpPageState extends State<SignUpPage> {
     if (widget.repository != null) {
       setState(() => _isSubmitting = true);
       try {
-        await widget.repository!.signUp(name, email, password);
-        if (mounted) _navigateToHome();
+        final signedIn = await widget.repository!.signUp(name, email, password);
+        if (mounted && !signedIn) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Periksa email untuk mengonfirmasi akun.'),
+            ),
+          );
+          widget.onSignIn?.call();
+        }
       } catch (error) {
         if (mounted) {
           final message = authErrorMessage(error);
@@ -203,18 +222,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Color(0xFF101828),
                     size: 24,
                   ),
-                  onPressed: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    } else {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(
-                          builder: (_) =>
-                              OnboardingPage(chatService: widget.chatService),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed:
+                      widget.onSignIn ??
+                      () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute<void>(
+                              builder: (_) => OnboardingPage(
+                                chatService: widget.chatService,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -407,7 +429,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton(
-                    onPressed: _navigateToHome,
+                    onPressed: widget.repository == null
+                        ? _navigateToHome
+                        : null,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       side: const BorderSide(
@@ -450,16 +474,18 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 48),
                 Center(
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(
-                          builder: (_) => SignInPage(
-                            chatService: widget.chatService,
-                            repository: widget.repository,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap:
+                        widget.onSignIn ??
+                        () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute<void>(
+                              builder: (_) => SignInPage(
+                                chatService: widget.chatService,
+                                repository: widget.repository,
+                              ),
+                            ),
+                          );
+                        },
                     child: RichText(
                       text: const TextSpan(
                         text: 'Sudah punya akun? ',
