@@ -9,9 +9,15 @@ import 'widgets/period_filter.dart';
 import 'widgets/total_expense_card.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key, required this.repository, this.onSignOut});
+  const DashboardPage({
+    super.key,
+    required this.repository,
+    this.transactionRevision = 0,
+    this.onSignOut,
+  });
 
   final DashboardRepository repository;
+  final int transactionRevision;
   final VoidCallback? onSignOut;
 
   @override
@@ -20,6 +26,14 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   late final _controller = DashboardController(widget.repository)..reload();
+
+  @override
+  void didUpdateWidget(covariant DashboardPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactionRevision != widget.transactionRevision) {
+      _controller.reload();
+    }
+  }
 
   @override
   void dispose() {

@@ -5,17 +5,16 @@ SiFinance adalah aplikasi pengelolaan keuangan pribadi dan keluarga yang dikemba
 
 Repositori ini berisi pengembangan aplikasi Flutter berdasarkan [prototipe desain SiFinance](https://sifinance.framer.website/).
 
-> **Status pengembangan** — Dashboard Personal dan AI Chat tersedia.
+## Fitur
 
-## Fitur yang Direncanakan
-
-| Fitur | Deskripsi | Status |
-| --- | --- | --- |
-| **Dashboard Personal** | Menampilkan total pengeluaran, tren enam bulan, dan rincian kategori, dengan filter periode. | Diimplementasikan |
-| **Pengelolaan Anggaran** | Menetapkan anggaran pengeluaran dan memantau penggunaannya. | Direncanakan |
-| **Pencatatan Transaksi Manual** | Mencatat pemasukan dan pengeluaran beserta detail transaksinya. | Direncanakan |
-| **Pencatatan Berbantuan AI** | Mempermudah pencatatan transaksi dengan bantuan kecerdasan buatan. | Direncanakan |
-| **AI Chat** | Balasan cepat, percakapan keuangan, dan lampiran gambar sesuai desain SiFinance. | Diimplementasikan |
+| Menu | Implementasi |
+| --- | --- |
+| **Beranda** | Halaman utama setelah autentikasi atau masuk ke mode demo. Mode Supabase menyediakan akses cepat ke Dashboard Personal dan Budget. Mode demo menampilkan contoh ringkasan berlabel. |
+| **Dashboard** | Total pengeluaran, tren dan rata-rata enam bulan, pembagian per kategori, dan filter periode. |
+| **Catat** | Formulir pemasukan dan pengeluaran. Simpan transaksi untuk memperbarui Dashboard dan penggunaan Budget. |
+| **Budget** | Tambah dan edit anggaran bulanan per kategori. Kartu menampilkan batas, pemakaian, sisa, dan persentase. |
+| **AI Chat** | Percakapan keuangan, pertanyaan cepat, dan lampiran gambar. Memakai respons demo jika server AI belum dikonfigurasi. |
+| **Transaksi** | Riwayat transaksi masih dalam pengembangan. Menu menampilkan pemberitahuan. |
 
 ## Teknologi
 
@@ -44,26 +43,29 @@ flutter pub get
 ```
 
 
-### Menjalankan Dashboard Personal
-
-1. Pasang [Supabase CLI](https://supabase.com/docs/guides/cli) v3 dan jalankan Docker.
-2. Jalankan `supabase start` dari root proyek. CLI menerapkan migrasi dan memuat data demo lokal.
-3. Salin `config/supabase.example.json` ke `config/supabase.colima.local.json`. Isi URL API dan publishable key dari `supabase status`. Gunakan `http://10.0.2.2:54321` pada Android Emulator.
+### Mode demo di browser
 
 ```bash
-flutter run --dart-define-from-file=config/supabase.colima.local.json
+flutter run -d web-server
 ```
 
-Untuk membuka aplikasi di browser dengan Supabase hosted, isi `config/supabase.json` dengan URL dan publishable key proyek. Jalankan perintah berikut. Untuk Colima, gunakan file konfigurasi lokal di atas.
+Buka alamat yang dicetak Flutter. Alurnya dimulai dari splash dan onboarding, lalu formulir demo dan Beranda. Formulir demo menyimulasikan masuk dan pendaftaran. Anggaran serta transaksi baru tersimpan dalam memori selama Beranda terbuka. Data demo akan kembali kosong setelah keluar atau memuat ulang aplikasi.
+
+### Mode Supabase di browser
+
+1. Untuk backend lokal, pasang Supabase CLI, jalankan Docker, lalu jalankan `supabase start` dari root proyek. CLI menerapkan migrasi dan memuat data demo lokal.
+2. Salin `config/supabase.example.json` ke `config/supabase.json`. Isi `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` dari proyek hosted atau keluaran `supabase status` untuk lingkungan lokal.
+3. Jalankan Flutter dan buka `http://127.0.0.1:5173/`.
 
 ```bash
 flutter run -d web-server --web-hostname 127.0.0.1 --web-port 5173 --dart-define-from-file=config/supabase.json
 ```
 
-Buka `http://127.0.0.1:5173/` langsung untuk masuk. Port `54321` digunakan aplikasi untuk mengakses API Supabase. Jika tab masih membuka URL konfirmasi lama dengan kode atau error autentikasi, buka kembali URL utama aplikasi.
+Setelah splash dan onboarding, pilih **Masuk** atau **Daftar** jika sesi belum tersedia. Jika browser masih menyimpan sesi Supabase untuk origin tersebut, tombol **Lanjut** langsung membuka Beranda. Gunakan tombol keluar di Beranda untuk mengakhiri sesi. Pendaftaran hosted mengikuti pengaturan konfirmasi email proyek. Autentikasi yang terintegrasi menggunakan email dan kata sandi.
 
+Dashboard, Catat, dan Budget menggunakan data Supabase milik akun yang masuk. Di **Budget**, gunakan **Tambah** untuk memilih kategori, menetapkan batas, dan memilih periode **Setiap Bulan**. Pemakaian dihitung dari pengeluaran kategori tersebut pada bulan berjalan. Grafik Dashboard selalu menampilkan enam bulan kalender terakhir, sedangkan filter mengubah total dan pembagian kategori.
 
-Pada Supabase lokal, masuk dengan `demo-a@example.com` atau `demo-b@example.com` dan kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan ini untuk kedua akun masing-masing Rp1.250.000 dan Rp875.000. Buat akun baru untuk melihat kondisi ketika belum ada transaksi. Filter mengubah total dan pembagian kategori. Grafik batang selalu memakai enam bulan kalender terakhir, termasuk bulan berjalan dan bulan dengan pengeluaran nol.
+Untuk Android Emulator dengan Supabase lokal, gunakan URL `http://10.0.2.2:54321`. Pada seed lokal, akun `demo-a@example.com` dan `demo-b@example.com` memakai kata sandi `SiFinanceDemo123!`. Total pengeluaran bulan berjalan masing-masing Rp1.250.000 dan Rp875.000.
 
 Untuk Supabase hosted, terapkan seluruh migrasi ke proyek tujuan dan pastikan Data API mengekspos skema `public`. Gunakan URL HTTPS dan publishable key proyek pada konfigurasi Flutter. Tambahkan data demo secara terpisah dari migrasi jika proyek memang dipakai untuk pengembangan.
 
@@ -101,7 +103,7 @@ python3 scripts/generate_supabase_types.py postgresql://postgres:postgres@127.0.
 
 ### AI Chat
 Tampilan meliputi sapaan, empat balasan cepat, bubble pesan, avatar, waktu pesan, menu lampiran, preview gambar, retry, dan reset percakapan. Font Poppins dan aset Figma disimpan di `assets/`. Kode halaman tersedia di `lib/features/chat/`.
-AI Chat tersedia dari navigasi Dashboard. Untuk membuka AI Chat saja, gunakan mode pengembangan berikut. Mode demo menampilkan balasan contoh saat `API_BASE_URL` kosong.
+AI Chat tersedia dari navigasi bawah Beranda. Untuk membuka AI Chat saja, gunakan mode pengembangan berikut. Mode demo menampilkan balasan contoh saat `API_BASE_URL` kosong.
 ```bash
 flutter run -d chrome --dart-define=CHAT_ONLY=true
 ```
@@ -150,22 +152,19 @@ sifinance/
 Direktori platform lain mungkin tersedia, tergantung platform yang diaktifkan saat proyek dibuat.
 
 ## Rencana Pengembangan
-- [x] Membuat proyek Flutter.
-- [x] Menambahkan navigasi Dashboard dan AI Chat.
-- [x] Membuat Dashboard Personal.
-- [ ] Mengimplementasikan pencatatan transaksi manual.
-- [ ] Menambahkan pembuatan dan pemantauan anggaran.
-- [ ] Mengintegrasikan pencatatan transaksi berbantuan AI.
-- [ ] Menambahkan penyimpanan data dan pengujian aplikasi
 
-
-Rencana pengembangan ini dapat berubah sesuai kebutuhan proyek.
+- Menghubungkan ringkasan Beranda dengan saldo, transaksi terakhir, dan anggaran akun.
+- Menambahkan riwayat transaksi dan pencatatan melalui perintah suara.
+- Menambahkan Family Group dan pengaturan privasi dari antarmuka.
+- Menghubungkan AI Chat dengan data akun dan penyimpanan riwayat percakapan.
 
 ## Referensi Desain
 Pengembangan aplikasi mengacu pada prototipe desain SiFinance.
 - [Website SiFinance](https://sifinance.framer.website/)
 
-## Sumber Penting lainnya
+## Dokumentasi
+
+- [Bab III · Implementasi SIFinance](BAB-3-SIFinance.md)
 - Final Report: https://drive.google.com/file/d/1pF_tffor4AOPkYp6tAFZOXg8ML9j8Nlf/view
 - Figma: https://www.figma.com/design/i80Wqb7FH7h5xENDJIqadd/Workspace?node-id=651-11523
 - Logbook: https://docs.google.com/spreadsheets/d/1j2anqDvT69hO2wmlaCmWk45P5Fl-iSF7MAmQIiyRJ2k/edit?gid=179656092#gid=179656092

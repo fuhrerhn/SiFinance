@@ -5,13 +5,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/presentation/auth_page.dart';
 import 'features/auth/presentation/sign_in_page.dart';
+import 'features/auth/presentation/sign_up_page.dart';
 import 'features/chat/data/chat_service.dart';
 import 'features/chat/presentation/chat_page.dart';
 import 'features/home/presentation/home_page.dart';
 import 'features/onboarding/presentation/onboarding_page.dart';
 import 'features/splash/presentation/splash_page.dart';
 
-enum AppStartScreen { splash, onboarding, signIn, home, chat }
+enum AppStartScreen { splash, onboarding, signIn, signUp, home, chat }
 
 class SiFinanceApp extends StatelessWidget {
   const SiFinanceApp({
@@ -61,19 +62,27 @@ class SiFinanceApp extends StatelessWidget {
                   repository: AuthRepository(client),
                   chatService: effectiveChatService,
                 )
-              : SignInPage(
+              : SignInPage(chatService: effectiveChatService);
+          break;
+        case AppStartScreen.signUp:
+          defaultHome = client != null
+              ? AuthPage(
+                  repository: AuthRepository(client),
                   chatService: effectiveChatService,
-                );
+                  startWithSignUp: true,
+                )
+              : SignUpPage(chatService: effectiveChatService);
           break;
         case AppStartScreen.home:
-          defaultHome = HomePage(
-            chatService: effectiveChatService,
-          );
+          defaultHome = client != null
+              ? AuthPage(
+                  repository: AuthRepository(client),
+                  chatService: effectiveChatService,
+                )
+              : HomePage(chatService: effectiveChatService);
           break;
         case AppStartScreen.chat:
-          defaultHome = ChatPage(
-            service: effectiveChatService,
-          );
+          defaultHome = ChatPage(service: effectiveChatService);
           break;
       }
     }
@@ -104,28 +113,30 @@ class SiFinanceApp extends StatelessWidget {
       ),
       home: defaultHome,
       routes: {
-        '/splash': (context) => SplashPage(
-              chatService: effectiveChatService,
-              client: client,
-            ),
-        '/onboarding': (context) => OnboardingPage(
-              chatService: effectiveChatService,
-              client: client,
-            ),
+        '/splash': (context) =>
+            SplashPage(chatService: effectiveChatService, client: client),
+        '/onboarding': (context) =>
+            OnboardingPage(chatService: effectiveChatService, client: client),
         '/sign-in': (context) => client != null
             ? AuthPage(
                 repository: AuthRepository(client),
                 chatService: effectiveChatService,
               )
-            : SignInPage(
+            : SignInPage(chatService: effectiveChatService),
+        '/sign-up': (context) => client != null
+            ? AuthPage(
+                repository: AuthRepository(client),
                 chatService: effectiveChatService,
-              ),
-        '/home': (context) => HomePage(
-              chatService: effectiveChatService,
-            ),
-        '/chat': (context) => ChatPage(
-              service: effectiveChatService,
-            ),
+                startWithSignUp: true,
+              )
+            : SignUpPage(chatService: effectiveChatService),
+        '/home': (context) => client != null
+            ? AuthPage(
+                repository: AuthRepository(client),
+                chatService: effectiveChatService,
+              )
+            : HomePage(chatService: effectiveChatService),
+        '/chat': (context) => ChatPage(service: effectiveChatService),
       },
     );
   }

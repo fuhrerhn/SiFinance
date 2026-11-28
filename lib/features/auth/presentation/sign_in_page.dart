@@ -5,7 +5,7 @@ import '../../chat/data/chat_service.dart';
 import '../../home/presentation/home_page.dart';
 import '../../onboarding/presentation/onboarding_page.dart';
 import '../data/auth_repository.dart';
-import 'auth_form.dart';
+import 'sign_up_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({
@@ -14,12 +14,14 @@ class SignInPage extends StatefulWidget {
     this.initialEmail,
     this.initialPassword,
     this.repository,
+    this.onSignUp,
   });
 
   final ChatService? chatService;
   final String? initialEmail;
   final String? initialPassword;
   final AuthRepository? repository;
+  final VoidCallback? onSignUp;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -38,8 +40,9 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     super.initState();
     _emailController = TextEditingController(text: widget.initialEmail ?? '');
-    _passwordController =
-        TextEditingController(text: widget.initialPassword ?? '');
+    _passwordController = TextEditingController(
+      text: widget.initialPassword ?? '',
+    );
   }
 
   @override
@@ -55,7 +58,11 @@ class _SignInPageState extends State<SignInPage> {
     final password = _passwordController.text;
 
     setState(() {
-      if (email.isEmpty || !email.toLowerCase().endsWith('@gmail.com')) {
+      if (widget.repository != null &&
+          !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email)) {
+        _emailError = 'Masukkan alamat email yang valid';
+      } else if (widget.repository == null &&
+          !email.toLowerCase().endsWith('@gmail.com')) {
         _emailError = 'Email harus berisi @gmail.com';
       } else {
         _emailError = null;
@@ -145,6 +152,7 @@ class _SignInPageState extends State<SignInPage> {
                         MaterialPageRoute<void>(
                           builder: (_) => OnboardingPage(
                             chatService: widget.chatService,
+                            client: widget.repository?.client,
                           ),
                         ),
                       );
@@ -367,7 +375,9 @@ class _SignInPageState extends State<SignInPage> {
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Fitur reset sandi sedang dipersiapkan'),
+                          content: Text(
+                            'Fitur reset sandi sedang dipersiapkan',
+                          ),
                           duration: Duration(seconds: 2),
                         ),
                       );
@@ -423,10 +433,7 @@ class _SignInPageState extends State<SignInPage> {
                 Row(
                   children: const [
                     Expanded(
-                      child: Divider(
-                        color: Color(0xFFE4E7EC),
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Color(0xFFE4E7EC), thickness: 1),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -440,10 +447,7 @@ class _SignInPageState extends State<SignInPage> {
                       ),
                     ),
                     Expanded(
-                      child: Divider(
-                        color: Color(0xFFE4E7EC),
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Color(0xFFE4E7EC), thickness: 1),
                     ),
                   ],
                 ),
@@ -453,7 +457,9 @@ class _SignInPageState extends State<SignInPage> {
                   width: double.infinity,
                   height: 48,
                   child: OutlinedButton(
-                    onPressed: _navigateToHome,
+                    onPressed: widget.repository == null
+                        ? _navigateToHome
+                        : null,
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       side: const BorderSide(
@@ -498,23 +504,18 @@ class _SignInPageState extends State<SignInPage> {
                 // Footer: Belum punya akun? Daftar
                 Center(
                   child: GestureDetector(
-                    onTap: () {
-                      if (widget.repository != null) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                AuthForm(repository: widget.repository!),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pendaftaran akun baru segera hadir'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
+                    onTap:
+                        widget.onSignUp ??
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => SignUpPage(
+                                chatService: widget.chatService,
+                                repository: widget.repository,
+                              ),
+                            ),
+                          );
+                        },
                     child: RichText(
                       text: const TextSpan(
                         text: 'Belum punya akun? ',
