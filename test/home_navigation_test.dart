@@ -11,6 +11,7 @@ import 'package:tekber/features/budget/domain/budget_period.dart';
 import 'package:tekber/features/budget/presentation/budget_page.dart';
 import 'package:tekber/features/chat/presentation/chat_page.dart';
 import 'package:tekber/features/dashboard/presentation/dashboard_page.dart';
+import 'package:tekber/features/histori_transaksi/presentation/histori_transaksi_page.dart';
 import 'package:tekber/features/home/presentation/home_page.dart';
 import 'package:tekber/features/manual_logging/presentation/manual_logging_page.dart';
 
@@ -77,8 +78,9 @@ void main() {
 
     await tester.tap(find.text('Transaksi'));
     await tester.pumpAndSettle();
-    expect(find.text('Menu Transaksi belum ditambahkan'), findsOneWidget);
-    expect(find.byType(DashboardPage), findsOneWidget);
+    expect(find.byType(HistoriTransaksiPage), findsOneWidget);
+    expect(find.text('Histori Transaksi'), findsOneWidget);
+    expect(find.byType(DashboardPage, skipOffstage: false), findsOneWidget);
 
     await tester.tap(find.text('AI Chat'));
     await tester.pumpAndSettle();

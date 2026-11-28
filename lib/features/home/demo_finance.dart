@@ -4,6 +4,9 @@ import '../dashboard/data/dashboard_repository.dart';
 import '../dashboard/domain/category_spending.dart';
 import '../dashboard/domain/dashboard_period.dart';
 import '../dashboard/domain/dashboard_summary.dart';
+import '../histori_transaksi/data/histori_transaksi_repository.dart';
+import '../histori_transaksi/domain/history_filter.dart';
+import '../histori_transaksi/domain/history_transaction.dart';
 import '../manual_logging/data/manual_logging_repository.dart';
 import '../manual_logging/domain/manual_transaction.dart';
 
@@ -21,6 +24,8 @@ class DemoFinance implements DashboardRepository, ManualLoggingRepository {
 
   final _transactions = <ManualTransaction>[];
   late final BudgetRepository budgets = _DemoBudgetRepository(this);
+  late final HistoriTransaksiRepository historyTransactions =
+      _DemoHistoriTransaksiRepository(this);
 
   @override
   Future<List<LogCategory>> loadCategories() async => categories;
@@ -103,4 +108,71 @@ class _DemoBudgetRepository implements BudgetRepository {
     if (!_inputs.containsKey(id)) throw StateError('Budget tidak ditemukan.');
     _inputs[id] = input;
   }
+}
+
+class _DemoHistoriTransaksiRepository implements HistoriTransaksiRepository {
+  _DemoHistoriTransaksiRepository(this.finance);
+
+  final DemoFinance finance;
+
+  @override
+  Future<List<HistoryTransaction>> load(
+    HistoryFilter filter, {
+    required int offset,
+    required int limit,
+  }) async {
+    final rows = finance._transactions.asMap().entries.where((entry) {
+      final transaction = entry.value;
+      final date = DateTime(
+        transaction.date.year,
+        transaction.date.month,
+        transaction.date.day,
+      );
+      if (filter.categoryId case final categoryId?) {
+        if (transaction.category.id != categoryId) return false;
+      }
+      if (filter.start case final start?) {
+        if (date.isBefore(start)) return false;
+      }
+      if (filter.end case final end?) {
+        if (date.isAfter(end)) return false;
+      }
+      return true;
+    }).toList();
+    rows.sort((a, b) {
+      final byDate = b.value.date.compareTo(a.value.date);
+      return byDate != 0 ? byDate : b.key.compareTo(a.key);
+    });
+    return [
+      for (final entry in rows.skip(offset).take(limit))
+        HistoryTransaction(
+          id: entry.key.toString(),
+          type: entry.value.type == TransactionType.income
+              ? HistoryType.income
+              : HistoryType.expense,
+          date: entry.value.date,
+          amount: entry.value.amount,
+          categoryId: entry.value.category.id,
+          categoryName: entry.value.category.name,
+          iconName: entry.value.category.iconName,
+          colorHex: entry.value.category.colorHex,
+          description: entry.value.description,
+          location: entry.value.location,
+          paymentAccount: entry.value.paymentAccount,
+        ),
+    ];
+  }
+
+  @override
+  Future<List<HistoryCategory>> loadCategories() async => [
+    for (final category in DemoFinance.categories)
+      HistoryCategory(
+        id: category.id,
+        name: category.name,
+        slug: category.name.toLowerCase().replaceAll(' ', '-'),
+        isIncome: category.type == TransactionType.income,
+        iconName: category.iconName,
+        colorHex: category.colorHex,
+      ),
+  ];
 }

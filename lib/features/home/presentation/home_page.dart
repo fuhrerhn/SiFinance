@@ -8,6 +8,8 @@ import '../../chat/data/chat_service.dart';
 import '../../chat/presentation/chat_page.dart';
 import '../../dashboard/data/dashboard_repository.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
+import '../../histori_transaksi/data/histori_transaksi_repository.dart';
+import '../../histori_transaksi/presentation/histori_transaksi_page.dart';
 import '../../manual_logging/data/manual_logging_repository.dart';
 import '../../manual_logging/presentation/manual_logging_page.dart';
 import '../demo_finance.dart';
@@ -19,6 +21,7 @@ class HomePage extends StatefulWidget {
     this.userEmail,
     this.dashboardRepository,
     this.budgetRepository,
+    this.historiTransaksiRepository,
     this.manualLoggingRepository,
     this.onSignOut,
   });
@@ -27,6 +30,7 @@ class HomePage extends StatefulWidget {
   final String? userEmail;
   final DashboardRepository? dashboardRepository;
   final BudgetRepository? budgetRepository;
+  final HistoriTransaksiRepository? historiTransaksiRepository;
   final ManualLoggingRepository? manualLoggingRepository;
   final Future<void> Function()? onSignOut;
 
@@ -54,13 +58,6 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-      );
-      return;
-    }
-    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
-    if (index == 4) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Menu Transaksi belum ditambahkan')),
       );
       return;
     }
@@ -118,7 +115,14 @@ class _HomePageState extends State<HomePage> {
             )
           else
             const SizedBox.shrink(),
-          const SizedBox.shrink(),
+          if (_openedTabs.contains(4))
+            HistoriTransaksiPage(
+              repository:
+                  widget.historiTransaksiRepository ?? _demo.historyTransactions,
+              transactionRevision: _transactionRevision,
+            )
+          else
+            const SizedBox.shrink(),
           if (_openedTabs.contains(5))
             ChatPage(service: _chatService, onBack: () => _onNavTapped(0))
           else
